@@ -30,19 +30,26 @@ jacocoTestReport {
     reports {
         xml.required = true
         html.required = true
-        html.outputLocation = file("build/reports/jacoco/test/html")  // تعديل هنا إلى outputLocation
+        html.outputLocation = file("build/reports/jacoco/test/html")
+        csv.required = false // يمكن إلغاء CSV إذا كنت لا تحتاج إليها
     }
 }
 
 jacocoTestCoverageVerification {
+    dependsOn jacocoTestReport
     violationRules {
         rule {
             element = 'CLASS'
             limit {
-                minimum = 0.85  // الحد الأدنى لنسبة التغطية 85%
+                minimum = 0.90  // رفع الحد الأدنى إلى 90%
+            }
+        }
+        rule {
+            element = 'METHOD'
+            limit {
+                minimum = 0.85  // رفع التغطية للأسطوانات إلى 85%
             }
         }
     }
 }
 
-check.dependsOn jacocoTestCoverageVerification

@@ -2,19 +2,16 @@ package main.najah.test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-
 import main.najah.code.Recipe;
 import main.najah.code.RecipeBook;
 
 import java.util.concurrent.TimeUnit;
 
 class RecipeBookTest {
+
     RecipeBook recipeBook;
     Recipe recipe1, recipe2, recipe3;
 
@@ -34,9 +31,11 @@ class RecipeBookTest {
     @Test
     @DisplayName("Test adding valid recipe")
     void testAddRecipe() {
-        assertTrue(recipeBook.addRecipe(recipe1), "Failed to add a valid recipe");
-        assertTrue(recipeBook.addRecipe(recipe2), "Failed to add a second valid recipe");
-        assertTrue(recipeBook.addRecipe(recipe3), "Failed to add a third valid recipe");
+        assertAll("Add valid recipes",
+            () -> assertTrue(recipeBook.addRecipe(recipe1), "Failed to add 'Coffee' recipe"),
+            () -> assertTrue(recipeBook.addRecipe(recipe2), "Failed to add 'Tea' recipe"),
+            () -> assertTrue(recipeBook.addRecipe(recipe3), "Failed to add 'Latte' recipe")
+        );
     }
 
     @Test
@@ -44,6 +43,14 @@ class RecipeBookTest {
     void testAddDuplicateRecipe() {
         recipeBook.addRecipe(recipe1);
         assertFalse(recipeBook.addRecipe(recipe1), "Duplicate recipe should not be added");
+    }
+
+    @Test
+    @DisplayName("Test adding empty recipe name")
+    void testAddEmptyRecipeName() {
+        Recipe emptyRecipe = new Recipe();
+        emptyRecipe.setName("");
+        assertThrows(IllegalArgumentException.class, () -> recipeBook.addRecipe(emptyRecipe), "Recipe name should not be empty");
     }
 
     @Test
@@ -115,8 +122,73 @@ class RecipeBookTest {
         recipeBook.addRecipe(recipe1);
         Recipe[] recipes = recipeBook.getRecipes();
         
-        assertEquals(1, recipes.length, "Recipes array should contain 1 recipe");
-        assertEquals("Coffee", recipes[0].getName(), "Recipe name should be 'Coffee'");
-        assertNotNull(recipes[0], "Recipe at position 0 should not be null");
+        assertAll("Multiple assertions for recipe",
+            () -> assertEquals(1, recipes.length, "Recipes array should contain 1 recipe"),
+            () -> assertEquals("Coffee", recipes[0].getName(), "Recipe name should be 'Coffee'"),
+            () -> assertNotNull(recipes[0], "Recipe at position 0 should not be null")
+        );
+    }
+
+    @Test
+    @DisplayName("Test recipe list is updated after deletion")
+    void testRecipeListAfterDeletion() {
+        recipeBook.addRecipe(recipe1);
+        recipeBook.addRecipe(recipe2);
+        recipeBook.deleteRecipe(0);  // Deleting the first recipe
+        assertEquals(1, recipeBook.getRecipes().length, "Recipe list should have 1 recipe after deletion");
+        assertEquals("Tea", recipeBook.getRecipes()[0].getName(), "Remaining recipe should be 'Tea'");
+    }
+
+    @Test
+    @DisplayName("Test adding null recipe")
+    void testAddNullRecipe() {
+        assertThrows(IllegalArgumentException.class, () -> recipeBook.addRecipe(null), "Null recipes should not be added");
+    }
+
+    @Test
+    @DisplayName("Test editing recipe with invalid index")
+    void testEditRecipeWithInvalidIndex() {
+        Recipe newRecipe = new Recipe();
+        newRecipe.setName("Espresso");
+        assertNull(recipeBook.editRecipe(99, newRecipe), "Editing with an invalid index should return null");
+    }
+
+    @Test
+    @DisplayName("Test adding a large number of recipes")
+    void testAddLargeNumberOfRecipes() {
+        for (int i = 0; i < 1000; i++) {
+            Recipe newRecipe = new Recipe();
+            newRecipe.setName("Recipe " + i);
+            assertTrue(recipeBook.addRecipe(newRecipe), "Failed to add recipe number " + i);
+        }
+        assertEquals(1000, recipeBook.getRecipes().length, "Recipe book should contain 1000 recipes");
+    }
+
+    @Test
+    @DisplayName("Test adding recipe with special characters in name")
+    void testAddRecipeWithSpecialCharacters() {
+        Recipe specialRecipe = new Recipe();
+        specialRecipe.setName("Espresso@#!");
+        assertTrue(recipeBook.addRecipe(specialRecipe), "Failed to add recipe with special characters in name");
+    }
+
+    @Test
+    @DisplayName("Test adding recipe with a long name")
+    void testAddLongRecipeName() {
+        Recipe longNameRecipe = new Recipe();
+        longNameRecipe.setName("Super Long Recipe Name That Exceeds Normal Length");
+        assertTrue(recipeBook.addRecipe(longNameRecipe), "Failed to add recipe with long name");
+    }
+
+    @Test
+    @DisplayName("Test deleting all recipes")
+    void testDeleteAllRecipes() {
+        recipeBook.addRecipe(recipe1);
+        recipeBook.addRecipe(recipe2);
+        recipeBook.addRecipe(recipe3);
+        recipeBook.deleteRecipe(0); // Deleting Coffee
+        recipeBook.deleteRecipe(0); // Deleting Tea
+        recipeBook.deleteRecipe(0); // Deleting Latte
+        assertEquals(0, recipeBook.getRecipes().length, "Recipe list should be empty after deleting all recipes");
     }
 }

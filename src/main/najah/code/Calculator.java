@@ -1,21 +1,38 @@
 package main.najah.code;
 
 public class Calculator {
+
+    // إضافة دالة add
     public int add(int... numbers) {
         int sum = 0;
-        for (int n : numbers) sum += n;
+        for (int num : numbers) {
+            sum += num;
+        }
         return sum;
     }
 
+    // إضافة دالة divide
     public int divide(int a, int b) {
-        if (b == 0) throw new ArithmeticException("Cannot divide by zero");
+        if (b == 0) {
+            throw new ArithmeticException("Cannot divide by zero");
+        }
         return a / b;
     }
 
-    public int factorial(int n) {
-        if (n < 0) throw new IllegalArgumentException("Negative input");
-        int result = 1;
-        for (int i = 2; i <= n; i++) result *= i;
+    // إضافة دالة multiply
+    public int multiply(int a, int b) {
+        return a * b;
+    }
+
+    // إضافة دالة factorial
+    public long factorial(int n) {
+        if (n < 0) {
+            throw new IllegalArgumentException("Cannot calculate factorial of negative number");
+        }
+        long result = 1;
+        for (int i = 1; i <= n; i++) {
+            result *= i;
+        }
         return result;
     }
 }
