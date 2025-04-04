@@ -1,0 +1,55 @@
+plugins {
+    id 'java'
+    id 'jacoco'
+}
+
+group = 'main.najah'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.9.3'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+}
+
+test {
+    useJUnitPlatform()
+    finalizedBy jacocoTestReport  // تنفيذ تقرير JaCoCo بعد الاختبارات
+}
+
+jacoco {
+    toolVersion = '0.8.7'
+}
+
+jacocoTestReport {
+    dependsOn test
+    reports {
+        xml.required = true
+        html.required = true
+        html.outputLocation = file("build/reports/jacoco/test/html")
+        csv.required = false // يمكن إلغاء CSV إذا كنت لا تحتاج إليها
+    }
+}
+
+jacocoTestCoverageVerification {
+    dependsOn jacocoTestReport
+    violationRules {
+        rule {
+            element = 'CLASS'
+            limit {
+                minimum = 0.90  // رفع الحد الأدنى إلى 90%
+            }
+        }
+        rule {
+            element = 'METHOD'
+            limit {
+                minimum = 0.85  // رفع التغطية للأسطوانات إلى 85%
+            }
+        }
+    }
+}
+
